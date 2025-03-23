@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borrow Book - SPCC Library</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #01012d;
+            color: #ffffff;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(135deg, #000062 0%, #1a1a80 100%);
+            padding: 12px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            border-bottom: 2px solid rgba(251, 189, 1, 0.3);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #fbbd01;
+            font-size: 24px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .navbar-brand:hover {
+            transform: translateY(-2px);
+        }
+
+        .navbar-brand img {
+            height: 45px;
+            width: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(251, 189, 1, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand:hover img {
+            box-shadow: 0 0 15px rgba(251, 189, 1, 0.5);
+            border-color: #fbbd01;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .nav-links a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-links a:before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background-color: #fbbd01;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-links a:hover:before, .nav-links a.active:before {
+            width: 80%;
+        }
+
+        .nav-links a:hover {
+            color: #fbbd01;
+            background-color: rgba(251, 189, 1, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .nav-links a.active {
+            color: #fbbd01;
+            background-color: rgba(251, 189, 1, 0.15);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 90px auto 30px;
+            padding: 0 20px;
+        }
+
+        .search-section {
+            background: rgba(0, 0, 98, 0.5);
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(251, 189, 1, 0.2);
+        }
+
+        .search-box {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid rgba(251, 189, 1, 0.3);
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-size: 16px;
+        }
+
+        .search-button {
+            padding: 12px 25px;
+            background-color: #fbbd01;
+            color: #000062;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-button:hover {
+            background-color: #01ecfb;
+        }
+
+        .books-section {
+            background: rgba(0, 0, 98, 0.5);
+            padding: 30px;
+            border-radius: 10px;
+            border: 1px solid rgba(251, 189, 1, 0.2);
+        }
+
+        .section-title {
+            color: #fbbd01;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .books-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .books-table th,
+        .books-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(251, 189, 1, 0.2);
+        }
+
+        .books-table th {
+            background-color: rgba(251, 189, 1, 0.1);
+            color: #fbbd01;
+            font-weight: bold;
+        }
+
+        .books-table tr:hover {
+            background-color: rgba(251, 189, 1, 0.05);
+        }
+
+        .borrow-button {
+            padding: 8px 15px;
+            background-color: #fbbd01;
+            color: #000062;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .borrow-button:hover {
+            background-color: #01ecfb;
+        }
+
+        .borrow-button:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .status-available {
+            background-color: #00C851;
+            color: white;
+        }
+
+        .status-unavailable {
+            background-color: #ff4444;
+            color: white;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 30px;
+            color: #ffffff;
+            font-style: italic;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: rgba(0, 0, 98, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 1px solid rgba(251, 189, 1, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            color: #fbbd01;
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .close {
+            color: #fbbd01;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #01ecfb;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #fbbd01;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid rgba(251, 189, 1, 0.3);
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        .confirm-button {
+            width: 100%;
+            padding: 12px;
+            background-color: #fbbd01;
+            color: #000062;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .confirm-button:hover {
+            background-color: #01ecfb;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="frontpage.html" class="navbar-brand">
+            <img src="../spcc.png" alt="SPCC Logo">
+            <span>SPCC Caloocan Library</span>
+        </a>
+        <div class="nav-links">
+            <a href="frontpage.html">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="borrow.html" class="active">
+                <i class="fas fa-book"></i> Borrow
+            </a>
+            <a href="return_book.html">
+                <i class="fas fa-book-reader"></i> Return Book
+            </a>
+            <a href="#" id="logoutLink">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="search-section">
+            <h2 class="section-title">Search Books</h2>
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search by book name, author, or ISBN...">
+                <button class="search-button" onclick="searchBooks()">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+        </div>
+
+        <div class="books-section">
+            <h2 class="section-title">Available Books</h2>
+            <table class="books-table">
+                <thead>
+                    <tr>
+                        <th>Book Name</th>
+                        <th>Author</th>
+                        <th>ISBN</th>
+                        <th>Category</th>
+                        <th>Location</th>
+                        <th>Available</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="booksTableBody">
+                    <!-- Books will be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Borrow Modal -->
+    <div id="borrowModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Borrow Book</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="borrowForm">
+                <input type="hidden" id="bookId">
+                <div class="form-group">
+                    <label for="studentName">Full Name:</label>
+                    <input type="text" id="studentName" required>
+                </div>
+                <div class="form-group">
+                    <label for="studentId">Student Number (STN):</label>
+                    <input type="text" id="studentId" required>
+                </div>
+                <button type="submit" class="confirm-button">Confirm Borrow</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Check authentication
+        function checkAuth() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            if (!isLoggedIn) {
+                window.location.href = 'frontpage.html';
+                return false;
+            }
+            return true;
+        }
+
+        // Function to show error message
+        function showError(message) {
+            const booksTableBody = document.getElementById('booksTableBody');
+            if (booksTableBody) {
+                booksTableBody.innerHTML = `<tr><td colspan="8" class="error-message">${message}</td></tr>`;
+            }
+        }
+
+        // Function to display books in table
+        function displayBooks(books) {
+            const booksTableBody = document.getElementById('booksTableBody');
+            if (!booksTableBody) {
+                console.error('Books table body element not found');
+                return;
+            }
+
+            if (!books || !Array.isArray(books)) {
+                console.error('Invalid books data:', books);
+                showError('No books found');
+                return;
+            }
+
+            if (books.length === 0) {
+                showError('No books found');
+                return;
+            }
+
+            const html = books.map(book => `
+                <tr>
+                    <td>${book.title}</td>
+                    <td>${book.author}</td>
+                    <td>${book.isbn}</td>
+                    <td>${book.genre}</td>
+                    <td>${book.location}</td>
+                    <td>${book.available_copies}</td>
+                    <td><span class="status-badge ${book.available_copies > 0 ? 'status-available' : 'status-unavailable'}">${book.available_copies > 0 ? 'Available' : 'Unavailable'}</span></td>
+                    <td>
+                        <button onclick="showBorrowModal(${book.bookID})" class="borrow-button" ${book.available_copies <= 0 ? 'disabled' : ''}>
+                            Borrow
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            booksTableBody.innerHTML = html;
+        }
+
+        // Function to load available books
+        async function loadAvailableBooks() {
+            try {
+                const response = await fetch('http://localhost/backend/get_available_books.php');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayBooks(data.books);
+                } else {
+                    showError(data.message || 'Failed to load available books');
+                }
+            } catch (error) {
+                console.error('Error loading available books:', error);
+                showError('Failed to load available books');
+            }
+        }
+
+        // Function to search books
+        async function searchBooks() {
+            const searchInput = document.getElementById('searchInput');
+            const searchTerm = searchInput.value.trim();
+            
+            if (searchTerm === '') {
+                loadAvailableBooks(); // Load all books if search is empty
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost/backend/search_books.php?query=${encodeURIComponent(searchTerm)}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayBooks(data.books);
+                } else {
+                    showError(data.message || 'No books found');
+                }
+            } catch (error) {
+                console.error('Error searching books:', error);
+                showError('Error searching books');
+            }
+        }
+
+        // Show borrow modal
+        function showBorrowModal(bookId) {
+            const modal = document.getElementById('borrowModal');
+            document.getElementById('bookId').value = bookId;
+            modal.style.display = 'block';
+        }
+
+        // Close modal when clicking the close button or outside the modal
+        document.querySelector('.close').onclick = function() {
+            document.getElementById('borrowModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('borrowModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Handle borrow form submission
+        document.getElementById('borrowForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const bookId = document.getElementById('bookId').value;
+            const studentName = document.getElementById('studentName').value;
+            const studentId = document.getElementById('studentId').value;
+
+            try {
+                const response = await fetch('http://localhost/backend/borrow_book.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        book_id: bookId,
+                        student_name: studentName,
+                        student_id: studentId
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert(data.message);
+                    document.getElementById('borrowModal').style.display = 'none';
+                    document.getElementById('borrowForm').reset();
+                    loadAvailableBooks(); // Refresh the books list
+                } else {
+                    alert(data.message || 'Error borrowing book');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error borrowing book');
+            }
+        });
+
+        // Handle logout
+        document.getElementById('logoutLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('username');
+            localStorage.removeItem('role');
+            window.location.href = 'frontpage.html';
+        });
+
+        // Add event listener for search input
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadAvailableBooks(); // Load available books when page loads
+            
+            // Add event listener for search input
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', debounce(searchBooks, 300));
+            }
+        });
+
+        // Debounce function to limit API calls
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+    </script>
+</body>
+</html> 

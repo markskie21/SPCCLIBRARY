@@ -1,0 +1,1300 @@
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - SPCC Library</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #01012d;
+            color: #ffffff;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #01012d 0%, #000062 100%);
+        }
+
+        .sidebar {
+            width: 200px;
+            background: rgba(0, 0, 98, 0.95);
+            padding: 15px;
+            position: fixed;
+            height: 100vh;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.minimized {
+            width: 70px;
+            padding: 20px 10px;
+        }
+
+        .sidebar.minimized .nav-item span {
+            display: none;
+        }
+
+        .sidebar.minimized .sidebar-header h2 {
+            display: none;
+        }
+
+        .sidebar.minimized .nav-item {
+            justify-content: center;
+            padding: 15px;
+        }
+
+        .sidebar.minimized .nav-item i {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 200px;
+            padding: 20px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .main-content.expanded {
+            margin-left: 70px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 98, 0.5);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            color: #fbbd01;
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info span {
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        .logout-btn {
+            background-color: #fbbd01;
+            color: #000062;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logout-btn:hover {
+            background-color: #01ecfb;
+            transform: translateY(-2px);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-card {
+            background: rgba(0, 0, 98, 0.7);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(251, 189, 1, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .dashboard-card h3 {
+            color: #fbbd01;
+            margin-top: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .dashboard-card p {
+            font-size: 28px;
+            margin: 15px 0;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, #fbbd01 0%, #ffd700 100%);
+            color: #000062;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(251, 189, 1, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(251, 189, 1, 0.4);
+        }
+
+        .action-btn.delete {
+            background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
+            color: white;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(0, 0, 98, 0.7);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .data-table th, .data-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(251, 189, 1, 0.2);
+        }
+
+        .data-table th {
+            background: rgba(251, 189, 1, 0.1);
+            color: #fbbd01;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .data-table tr:hover {
+            background-color: rgba(251, 189, 1, 0.05);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+            padding: 0 10px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: rgba(0, 0, 98, 0.95);
+            margin: 5% auto;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 15px;
+            border: 1px solid rgba(251, 189, 1, 0.2);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .modal-content h2 {
+            color: #fbbd01;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #fbbd01;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(251, 189, 1, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #fbbd01;
+            box-shadow: 0 0 5px rgba(251, 189, 1, 0.3);
+        }
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            cursor: pointer;
+            color: #fbbd01;
+            font-size: 24px;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #01ecfb;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #fbbd01;
+        }
+
+        .loading i {
+            font-size: 32px;
+            color: #fbbd01;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .message.success {
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            color: #00ff00;
+        }
+
+        .message.error {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            color: #ff0000;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        #errorMessage {
+            display: none;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            color: #ff0000;
+        }
+
+        /* Add minimize button styles */
+        .minimize-btn {
+            position: absolute;
+            right: -15px;
+            top: 20px;
+            background: #fbbd01;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000062;
+            font-size: 16px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            transition: all 0.3s ease;
+        }
+
+        .minimize-btn:hover {
+            background: #01ecfb;
+            transform: scale(1.1);
+        }
+
+        .minimize-btn i {
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.minimized .minimize-btn i {
+            transform: rotate(180deg);
+        }
+
+        .sidebar-header {
+            text-align: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(251, 189, 1, 0.2);
+        }
+
+        .sidebar-header h2 {
+            color: #fbbd01;
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .nav-menu {
+            margin-top: 15px;
+        }
+
+        .nav-item {
+            padding: 12px 15px;
+            color: #ffffff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            margin-bottom: 5px;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .nav-item i {
+            width: 18px;
+            font-size: 16px;
+            color: #fbbd01;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="sidebar">
+            <button class="minimize-btn" onclick="toggleSidebar()">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="sidebar-header">
+                <img src="../spcc.png" alt="SPCC Logo" style="width: 80px; height: auto; margin: 0 auto 10px; display: block;">
+                <h2>Admin Panel</h2>
+            </div>
+            <div class="nav-menu">
+                <a href="#" class="nav-item active" data-section="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-section="users">
+                    <i class="fas fa-users"></i>
+                    <span>Users</span>
+                </a>
+                <a href="#" class="nav-item" data-section="books">
+                    <i class="fas fa-book"></i>
+                    <span>Books</span>
+                </a>
+                <a href="#" class="nav-item" data-section="borrowings">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Borrowings</span>
+                </a>
+                <a href="#" class="nav-item" data-section="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+                <a href="#" class="nav-item" data-section="transactions">
+                    <i class="fas fa-history"></i>
+                    <span>Transaction History</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <h1>Dashboard</h1>
+                <div class="user-info">
+                    <span>Welcome, Admin</span>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h3>Total Books</h3>
+                    <p id="totalBooks">0</p>
+                </div>
+                <div class="dashboard-card">
+                    <h3>Total Users</h3>
+                    <p id="totalUsers">0</p>
+                </div>
+                <div class="dashboard-card">
+                    <h3>Active Borrowings</h3>
+                    <p id="activeBorrowings">0</p>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="action-btn" onclick="showModal('importModal')">
+                    <i class="fas fa-file-import"></i> Import Books
+                </button>
+                <button class="action-btn" onclick="showModal('addBookModal')">
+                    <i class="fas fa-plus"></i> Add Book
+                </button>
+                <button class="action-btn" onclick="showModal('addAdminModal')">
+                    <i class="fas fa-user-plus"></i> Add Admin
+                </button>
+            </div>
+
+            <div id="dashboardContent">
+                <div class="loading">
+                    <i class="fas fa-spinner"></i> Loading...
+                </div>
+                <div class="error-message" id="errorMessage"></div>
+                <!-- Content will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Books Modal -->
+    <div id="importModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('importModal')">&times;</span>
+            <h2>Import Books from Excel</h2>
+            <form id="importForm">
+                <div class="form-group">
+                    <label for="excelFile">Select Excel File</label>
+                    <input type="file" id="excelFile" accept=".xlsx,.xls" required>
+                </div>
+                <button type="submit" class="action-btn">Import</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Book Modal -->
+    <div id="addBookModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addBookModal')">&times;</span>
+            <h2>Add New Book</h2>
+            <form id="addBookForm">
+                <div class="form-group">
+                    <label for="bookTitle">Title</label>
+                    <input type="text" id="bookTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="bookAuthor">Author</label>
+                    <input type="text" id="bookAuthor" required>
+                </div>
+                <div class="form-group">
+                    <label for="bookISBN">ISBN</label>
+                    <input type="text" id="bookISBN" required>
+                </div>
+                <div class="form-group">
+                    <label for="bookCategory">Category</label>
+                    <input type="text" id="bookCategory" required>
+                </div>
+                <div class="form-group">
+                    <label for="bookPublisher">Publisher</label>
+                    <input type="text" id="bookPublisher">
+                </div>
+                <div class="form-group">
+                    <label for="bookQuantity">Quantity</label>
+                    <input type="number" id="bookQuantity" min="1" value="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location">
+                </div>
+                <div class="form-group">
+                    <label for="school_level">School Level</label>
+                    <select id="school_level" required>
+                        <option value="">Select School Level</option>
+                        <option value="college">College</option>
+                        <option value="highschool">High School</option>
+                        <option value="elementary">Elementary</option>
+                    </select>
+                </div>
+                <button type="submit" class="action-btn">Add Book</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Admin Modal -->
+    <div id="addAdminModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addAdminModal')">&times;</span>
+            <h2>Add New Admin</h2>
+            <form id="addAdminForm">
+                <div class="form-group">
+                    <label for="adminUsername">Username</label>
+                    <input type="text" id="adminUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="adminEmail">Email</label>
+                    <input type="email" id="adminEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="adminPassword">Password</label>
+                    <input type="password" id="adminPassword" required>
+                </div>
+                <button type="submit" class="action-btn">Add Admin</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('settingsModal')">&times;</span>
+            <h2>System Settings</h2>
+            <form id="settingsForm">
+                <div class="form-group">
+                    <label for="maxBorrowDays">Maximum Borrow Days</label>
+                    <input type="number" id="maxBorrowDays" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="finePerDay">Fine per Day (₱)</label>
+                    <input type="number" id="finePerDay" min="0" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="maxBooksPerUser">Maximum Books per User</label>
+                    <input type="number" id="maxBooksPerUser" min="1" required>
+                </div>
+                <button type="submit" class="action-btn">Save Settings</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Check admin authentication
+        function checkAdminAuth() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            const role = localStorage.getItem('role');
+            
+            if (!isLoggedIn || role !== 'admin') {
+                window.location.href = 'frontpage.html';
+            }
+        }
+
+        // Show loading indicator
+        function showLoading() {
+            const loadingElement = document.querySelector('.loading');
+            const errorElement = document.getElementById('errorMessage');
+            
+            if (loadingElement) {
+                loadingElement.style.display = 'block';
+            }
+            if (errorElement) {
+                errorElement.style.display = 'none';
+            }
+        }
+
+        // Hide loading indicator
+        function hideLoading() {
+            const loadingElement = document.querySelector('.loading');
+            if (loadingElement) {
+                loadingElement.style.display = 'none';
+            }
+        }
+
+        // Show error message
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+            }
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            const successMessage = document.getElementById('successMessage');
+            if (successMessage) {
+                successMessage.textContent = message;
+                successMessage.style.display = 'block';
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // Load dashboard data with error handling
+        async function loadDashboardData() {
+            showLoading();
+            try {
+                const response = await fetch('../backend/get_dashboard_data.php');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                
+                if (data.success) {
+                    const totalBooks = document.getElementById('totalBooks');
+                    const totalUsers = document.getElementById('totalUsers');
+                    const activeBorrowings = document.getElementById('activeBorrowings');
+                    
+                    if (totalBooks) totalBooks.textContent = data.totalBooks;
+                    if (totalUsers) totalUsers.textContent = data.totalUsers;
+                    if (activeBorrowings) activeBorrowings.textContent = data.activeBorrowings;
+                } else {
+                    showError(data.message || 'Error loading dashboard data');
+                }
+            } catch (error) {
+                showError(`Error loading dashboard data: ${error.message}`);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Load section content with error handling
+        async function loadSection(section) {
+            try {
+                showLoading();
+                const contentArea = document.getElementById('dashboardContent');
+                if (!contentArea) {
+                    console.error('Content area not found');
+                    return;
+                }
+
+                // Update active state in navigation
+                const navItems = document.querySelectorAll('.nav-item');
+                if (navItems) {
+                    navItems.forEach(item => {
+                        item.classList.remove('active');
+                        if (item.getAttribute('data-section') === section) {
+                            item.classList.add('active');
+                        }
+                    });
+                }
+
+                let content = '';
+                switch (section) {
+                    case 'dashboard':
+                        await loadDashboardData();
+                        return;
+                    case 'books':
+                        content = `
+                            <div class="section-header">
+                                <h2>Books Management</h2>
+                                <button onclick="showAddBookModal()" class="add-btn">Add New Book</button>
+                            </div>
+                            <div class="books-list" id="booksList">
+                                <div class="loading">Loading books...</div>
+                            </div>
+                        `;
+                        contentArea.innerHTML = content;
+                        await loadBooks();
+                        break;
+                    case 'users':
+                        content = `
+                            <div class="section-header">
+                                <h2>Users Management</h2>
+                                <button onclick="showAddUserModal()" class="add-btn">Add New User</button>
+                            </div>
+                            <div class="users-list" id="usersList">
+                                <div class="loading">Loading users...</div>
+                            </div>
+                        `;
+                        contentArea.innerHTML = content;
+                        await loadUsers();
+                        break;
+                    case 'borrowings':
+                        content = `
+                            <div class="section-header">
+                                <h2>Borrowings Management</h2>
+                            </div>
+                            <div class="borrowings-list" id="borrowingsList">
+                                <div class="loading">Loading borrowings...</div>
+                            </div>
+                        `;
+                        contentArea.innerHTML = content;
+                        await loadBorrowings();
+                        break;
+                    case 'transactions':
+                        content = `
+                            <div class="section-header">
+                                <h2>Transaction History</h2>
+                            </div>
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Transaction ID</th>
+                                            <th>Book Name</th>
+                                            <th>Student Name</th>
+                                            <th>STN</th>
+                                            <th>Borrow Date</th>
+                                            <th>Due Date</th>
+                                            <th>Return Date</th>
+                                            <th>Status</th>
+                                            <th>Fine</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="transactionsTableBody">
+                                        <tr>
+                                            <td colspan="9" class="loading">Loading transactions...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                        contentArea.innerHTML = content;
+                        await loadTransactionHistory();
+                        break;
+                    case 'settings':
+                        content = `
+                            <div class="section-header">
+                                <h2>Settings</h2>
+                            </div>
+                            <div class="settings-form">
+                                <form id="settingsForm">
+                                    <div class="form-group">
+                                        <label>Library Name</label>
+                                        <input type="text" name="library_name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Contact Email</label>
+                                        <input type="email" name="contact_email" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Max Books Per User</label>
+                                        <input type="number" name="max_books" min="1" required>
+                                    </div>
+                                    <button type="submit" class="save-btn">Save Settings</button>
+                                </form>
+                            </div>
+                        `;
+                        contentArea.innerHTML = content;
+                        await loadSettings();
+                        break;
+                }
+            } catch (error) {
+                console.error('Error loading section:', error);
+                showError('Failed to load section content');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Load settings
+        async function loadSettings() {
+            try {
+                const response = await fetch('../backend/get_settings.php');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('maxBorrowDays').value = data.data.maxBorrowDays || 7;
+                    document.getElementById('finePerDay').value = data.data.finePerDay || 10;
+                    document.getElementById('maxBooksPerUser').value = data.data.maxBooksPerUser || 3;
+                } else {
+                    showError(data.message || 'Error loading settings');
+                }
+            } catch (error) {
+                showError(`Error loading settings: ${error.message}`);
+            }
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check admin authentication
+            checkAdminAuth();
+
+            // Add event listeners for navigation items
+            const navItems = document.querySelectorAll('.nav-item');
+            if (navItems) {
+                navItems.forEach(item => {
+                    item.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const section = this.getAttribute('data-section');
+                        console.log('Clicked section:', section);
+                        loadSection(section);
+                    });
+                });
+            }
+
+            // Load dashboard by default
+            loadSection('dashboard');
+        });
+
+        // Modal functions
+        function showModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'block';
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        });
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('username');
+            localStorage.removeItem('role');
+            window.location.href = 'frontpage.html';
+        }
+
+        // Function to load books
+        async function loadBooks() {
+            try {
+                const response = await fetch('http://localhost/backend/get_books.php');
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayBooks(data.books);
+                } else {
+                    showError(data.message || 'Failed to load books');
+                }
+            } catch (error) {
+                console.error('Error loading books:', error);
+                showError('Failed to load books');
+            }
+        }
+
+        // Function to display books
+        function displayBooks(books) {
+            const booksList = document.getElementById('booksList');
+            if (!booksList) {
+                console.error('Books list element not found');
+                return;
+            }
+
+            if (!books || !Array.isArray(books)) {
+                console.error('Invalid books data:', books);
+                booksList.innerHTML = '<p>No books found</p>';
+                return;
+            }
+
+            if (books.length === 0) {
+                booksList.innerHTML = '<p>No books found</p>';
+                return;
+            }
+
+            const html = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Author</th>
+                            <th>ISBN</th>
+                            <th>Available Copies</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${books.map(book => `
+                            <tr>
+                                <td>${book.title}</td>
+                                <td>${book.author}</td>
+                                <td>${book.isbn}</td>
+                                <td>${book.available_copies}</td>
+                                <td>
+                                    <button onclick="editBook(${book.bookID})" class="edit-btn">Edit</button>
+                                    <button onclick="deleteBook(${book.bookID})" class="delete-btn">Delete</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            booksList.innerHTML = html;
+        }
+
+        // Function to load users
+        async function loadUsers() {
+            try {
+                const response = await fetch('http://localhost/backend/get_users.php');
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayUsers(data.users);
+                } else {
+                    showError(data.message || 'Failed to load users');
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+                showError('Failed to load users');
+            }
+        }
+
+        // Function to display users
+        function displayUsers(users) {
+            const usersList = document.getElementById('usersList');
+            if (!usersList) {
+                console.error('Users list element not found');
+                return;
+            }
+
+            if (!users || !Array.isArray(users)) {
+                console.error('Invalid users data:', users);
+                usersList.innerHTML = '<p>No users found</p>';
+                return;
+            }
+
+            if (users.length === 0) {
+                usersList.innerHTML = '<p>No users found</p>';
+                return;
+            }
+
+            const html = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${users.map(user => `
+                            <tr>
+                                <td>${user.username}</td>
+                                <td>${user.email}</td>
+                                <td>${user.role}</td>
+                                <td>
+                                    <button onclick="editUser(${user.userID})" class="edit-btn">Edit</button>
+                                    <button onclick="deleteUser(${user.userID})" class="delete-btn">Delete</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            usersList.innerHTML = html;
+        }
+
+        // Function to edit user
+        async function editUser(userID) {
+            try {
+                const response = await fetch(`http://localhost/backend/get_user.php?id=${userID}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const user = data.user;
+                    document.getElementById('editUserId').value = user.userID;
+                    document.getElementById('editUsername').value = user.username;
+                    document.getElementById('editEmail').value = user.email;
+                    document.getElementById('editRole').value = user.role;
+                    showModal('editUserModal');
+                } else {
+                    showError(data.message || 'Error loading user data');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Error loading user data');
+            }
+        }
+
+        // Function to delete user
+        async function deleteUser(userID) {
+            if (!confirm('Are you sure you want to delete this user?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost/backend/delete_user.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ userID: userID })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showSuccess('User deleted successfully');
+                    loadUsers();
+                } else {
+                    showError(data.message || 'Error deleting user');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Error deleting user');
+            }
+        }
+
+        // Function to update user
+        async function updateUser(event) {
+            event.preventDefault();
+            
+            const userData = {
+                userID: document.getElementById('editUserId').value,
+                username: document.getElementById('editUsername').value,
+                email: document.getElementById('editEmail').value,
+                role: document.getElementById('editRole').value
+            };
+
+            try {
+                const response = await fetch('http://localhost/backend/update_user.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showSuccess('User updated successfully');
+                    closeModal('editUserModal');
+                    loadUsers();
+                } else {
+                    showError(data.message || 'Error updating user');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Error updating user');
+            }
+        }
+
+        // Function to add user
+        async function addUser(event) {
+            event.preventDefault();
+            
+            const userData = {
+                username: document.getElementById('newUsername').value,
+                email: document.getElementById('newEmail').value,
+                password: document.getElementById('newPassword').value,
+                role: document.getElementById('newRole').value
+            };
+
+            try {
+                const response = await fetch('http://localhost/backend/add_user.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showSuccess('User added successfully');
+                    closeModal('addUserModal');
+                    document.getElementById('addUserForm').reset();
+                    loadUsers();
+                } else {
+                    showError(data.message || 'Error adding user');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Error adding user');
+            }
+        }
+
+        // Add event listeners for forms
+        document.addEventListener('DOMContentLoaded', function() {
+            const editUserForm = document.getElementById('editUserForm');
+            const addUserForm = document.getElementById('addUserForm');
+            
+            if (editUserForm) {
+                editUserForm.addEventListener('submit', updateUser);
+            }
+            
+            if (addUserForm) {
+                addUserForm.addEventListener('submit', addUser);
+            }
+        });
+
+        // Add this function to your existing JavaScript
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+            const minimizeBtn = document.querySelector('.minimize-btn');
+            
+            sidebar.classList.toggle('minimized');
+            mainContent.classList.toggle('expanded');
+            
+            // Update button icon
+            const icon = minimizeBtn.querySelector('i');
+            if (sidebar.classList.contains('minimized')) {
+                icon.classList.remove('fa-chevron-left');
+                icon.classList.add('fa-chevron-right');
+            } else {
+                icon.classList.remove('fa-chevron-right');
+                icon.classList.add('fa-chevron-left');
+            }
+        }
+
+        // Function to show add book modal
+        function showAddBookModal() {
+            showModal('addBookModal');
+        }
+
+        // Function to add book
+        async function addBook(event) {
+            event.preventDefault();
+            
+            const bookData = {
+                title: document.getElementById('bookTitle').value,
+                author: document.getElementById('bookAuthor').value,
+                isbn: document.getElementById('bookISBN').value,
+                quantity: document.getElementById('bookQuantity').value,
+                genre: document.getElementById('bookCategory').value,
+                publisher: document.getElementById('bookPublisher').value,
+                location: document.getElementById('location').value,
+                school_level: document.getElementById('school_level').value
+            };
+
+            try {
+                const response = await fetch('http://localhost/backend/add_book.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(bookData)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showSuccess('Book added successfully');
+                    closeModal('addBookModal');
+                    document.getElementById('addBookForm').reset();
+                    // Refresh the books list
+                    await loadBooks();
+                } else {
+                    showError(data.message || 'Error adding book');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Error adding book');
+            }
+        }
+
+        // Function to load transaction history
+        async function loadTransactionHistory() {
+            try {
+                const response = await fetch('http://localhost/backend/get_transaction_history.php');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayTransactions(data.transactions);
+                } else {
+                    showError(data.message || 'Failed to load transaction history');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Failed to load transaction history');
+            }
+        }
+
+        // Function to display transactions
+        function displayTransactions(transactions) {
+            const tbody = document.getElementById('transactionsTableBody');
+            if (!tbody) return;
+
+            if (!transactions || !Array.isArray(transactions) || transactions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="no-results">No transactions found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = transactions.map(trans => `
+                <tr>
+                    <td>${trans.borrowID}</td>
+                    <td>${trans.bookname}</td>
+                    <td>${trans.fullname}</td>
+                    <td>${trans.STN}</td>
+                    <td>${new Date(trans.dateborrowed).toLocaleDateString()}</td>
+                    <td>${new Date(trans.datetoreturn).toLocaleDateString()}</td>
+                    <td>${trans.datereturned ? new Date(trans.datereturned).toLocaleDateString() : '-'}</td>
+                    <td>
+                        <span class="status-badge ${trans.borrowstatus === 'Returned' ? 'status-ontime' : 'status-overdue'}">
+                            ${trans.borrowstatus}
+                        </span>
+                    </td>
+                    <td>${trans.fine > 0 ? '₱' + trans.fine : '-'}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Add event listener for the add book form
+        document.addEventListener('DOMContentLoaded', function() {
+            const addBookForm = document.getElementById('addBookForm');
+            if (addBookForm) {
+                addBookForm.addEventListener('submit', addBook);
+            }
+        });
+    </script>
+</body>
+</html> 

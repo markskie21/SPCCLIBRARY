@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Return Book - SPCC Library</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #01012d;
+            color: #ffffff;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(135deg, #000062 0%, #1a1a80 100%);
+            padding: 12px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            border-bottom: 2px solid rgba(251, 189, 1, 0.3);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #fbbd01;
+            font-size: 24px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .navbar-brand:hover {
+            transform: translateY(-2px);
+        }
+
+        .navbar-brand img {
+            height: 45px;
+            width: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(251, 189, 1, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand:hover img {
+            box-shadow: 0 0 15px rgba(251, 189, 1, 0.5);
+            border-color: #fbbd01;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .nav-links a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-links a:before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background-color: #fbbd01;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-links a:hover:before, .nav-links a.active:before {
+            width: 80%;
+        }
+
+        .nav-links a:hover {
+            color: #fbbd01;
+            background-color: rgba(251, 189, 1, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .nav-links a.active {
+            color: #fbbd01;
+            background-color: rgba(251, 189, 1, 0.15);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 90px auto 30px;
+            padding: 0 20px;
+        }
+
+        .search-section {
+            background: rgba(0, 0, 98, 0.5);
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(251, 189, 1, 0.2);
+        }
+
+        .search-box {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid rgba(251, 189, 1, 0.3);
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-size: 16px;
+        }
+
+        .search-button {
+            padding: 12px 25px;
+            background-color: #fbbd01;
+            color: #000062;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-button:hover {
+            background-color: #01ecfb;
+        }
+
+        .borrowed-books {
+            background: rgba(0, 0, 98, 0.5);
+            padding: 30px;
+            border-radius: 10px;
+            border: 1px solid rgba(251, 189, 1, 0.2);
+        }
+
+        .section-title {
+            color: #fbbd01;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .books-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .books-table th,
+        .books-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(251, 189, 1, 0.2);
+        }
+
+        .books-table th {
+            background-color: rgba(251, 189, 1, 0.1);
+            color: #fbbd01;
+            font-weight: bold;
+        }
+
+        .books-table tr:hover {
+            background-color: rgba(251, 189, 1, 0.05);
+        }
+
+        .return-button {
+            padding: 8px 15px;
+            background-color: #fbbd01;
+            color: #000062;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .return-button:hover {
+            background-color: #01ecfb;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .status-overdue {
+            background-color: #ff4444;
+            color: white;
+        }
+
+        .status-ontime {
+            background-color: #00C851;
+            color: white;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 30px;
+            color: #ffffff;
+            font-style: italic;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="frontpage.html" class="navbar-brand">
+            <img src="../spcc.png" alt="SPCC Logo">
+            <span>SPCC Caloocan Library</span>
+        </a>
+        <div class="nav-links">
+            <a href="frontpage.html">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="borrow.html">
+                <i class="fas fa-book"></i> Borrow
+            </a>
+            <a href="return_book.html" class="active">
+                <i class="fas fa-book-reader"></i> Return Book
+            </a>
+            <a href="#" id="logoutLink">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="search-section">
+            <h2 class="section-title">Return Books</h2>
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search by book name, student name, or STN...">
+                <button class="search-button" onclick="searchBorrowings()">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+        </div>
+
+        <div class="borrowed-books">
+            <h2 class="section-title">Borrowed Books</h2>
+            <table class="books-table">
+                <thead>
+                    <tr>
+                        <th>Transaction ID</th>
+                        <th>Book Name</th>
+                        <th>Student Name</th>
+                        <th>STN</th>
+                        <th>Borrow Date</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="borrowingsTableBody">
+                    <!-- Data will be populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Check authentication
+        function checkAuth() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            if (!isLoggedIn) {
+                window.location.href = 'frontpage.html';
+                return false;
+            }
+            return true;
+        }
+
+        // Load borrowings
+        async function loadBorrowings(search = '') {
+            const userId = localStorage.getItem('userId');
+            if (!userId) {
+                showError('User not found. Please log in again.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost/backend/get_borrowings.php?search=${encodeURIComponent(search)}&userId=${userId}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayBorrowings(data.borrowings);
+                } else {
+                    const errorMessage = data.message || 'Failed to load borrowings';
+                    console.error('Server error:', errorMessage);
+                    document.getElementById('borrowingsTableBody').innerHTML = 
+                        `<tr><td colspan="8" class="no-results">${errorMessage}</td></tr>`;
+                }
+            } catch (error) {
+                console.error('Error loading borrowings:', error);
+                document.getElementById('borrowingsTableBody').innerHTML = 
+                    `<tr><td colspan="8" class="no-results">Error loading borrowings. Please try again.</td></tr>`;
+            }
+        }
+
+        // Display borrowings in table
+        function displayBorrowings(borrowings) {
+            const borrowingsTableBody = document.getElementById('borrowingsTableBody');
+            if (!borrowingsTableBody) {
+                console.error('Borrowings table body element not found');
+                return;
+            }
+
+            if (!borrowings || !Array.isArray(borrowings)) {
+                console.error('Invalid borrowings data:', borrowings);
+                borrowingsTableBody.innerHTML = '<tr><td colspan="8" class="no-results">No borrowings found</td></tr>';
+                return;
+            }
+
+            if (borrowings.length === 0) {
+                borrowingsTableBody.innerHTML = '<tr><td colspan="8" class="no-results">No borrowings found</td></tr>';
+                return;
+            }
+
+            const today = new Date();
+            const html = borrowings.map(borrowing => {
+                const dueDate = new Date(borrowing.datetoreturn);
+                const isOverdue = today > dueDate;
+                
+                return `
+                    <tr>
+                        <td>${borrowing.borrowID}</td>
+                        <td>${borrowing.bookname}</td>
+                        <td>${borrowing.fullname}</td>
+                        <td>${borrowing.STN}</td>
+                        <td>${new Date(borrowing.dateborrowed).toLocaleDateString()}</td>
+                        <td>${new Date(borrowing.datetoreturn).toLocaleDateString()}</td>
+                        <td>
+                            <span class="status-badge ${isOverdue ? 'status-overdue' : 'status-ontime'}">
+                                ${isOverdue ? 'Overdue' : 'On Time'}
+                            </span>
+                        </td>
+                        <td>
+                            <button onclick="returnBook(${borrowing.borrowID})" class="return-button">
+                                Return
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            borrowingsTableBody.innerHTML = html;
+        }
+
+        // Search borrowings
+        function searchBorrowings() {
+            const searchTerm = document.getElementById('searchInput').value;
+            loadBorrowings(searchTerm);
+        }
+
+        // Return book
+        async function returnBook(transactionId) {
+            if (!confirm('Are you sure you want to return this book?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost/backend/return_book.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ borrowID: transactionId })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert(data.message);
+                    loadBorrowings();
+                } else {
+                    alert(data.message || 'Error returning book');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error returning book');
+            }
+        }
+
+        // Handle logout
+        document.getElementById('logoutLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('username');
+            localStorage.removeItem('role');
+            window.location.href = 'frontpage.html';
+        });
+
+        // Initialize page
+        checkAuth();
+        loadBorrowings();
+
+        // Handle Enter key in search input
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchBorrowings();
+            }
+        });
+    </script>
+</body>
+</html> 
